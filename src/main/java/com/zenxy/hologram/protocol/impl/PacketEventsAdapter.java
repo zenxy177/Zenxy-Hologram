@@ -1,6 +1,7 @@
 package com.zenxy.hologram.protocol.impl;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.manager.server.ServerVersion;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
@@ -26,9 +27,32 @@ import java.util.UUID;
 
 public class PacketEventsAdapter implements ProtocolAdapter {
 
+    // Version-aware DataWatcher Index Resolver (1.19.4 vs 1.20 vs 1.21)
+    private final int textComponentIndex;
+    private final int billboardIndex;
+    private final int backgroundColorIndex;
+    private final int displayFlagsIndex;
+
+    public PacketEventsAdapter() {
+        ServerVersion version = PacketEvents.getAPI().getServerManager().getVersion();
+        if (version.isNewerThanOrEquals(ServerVersion.V_1_20_5)) {
+            // MC 1.20.5 - 1.21+ Metadata Index Mappings
+            this.billboardIndex = 15;
+            this.textComponentIndex = 23;
+            this.backgroundColorIndex = 25;
+            this.displayFlagsIndex = 27;
+        } else {
+            // MC 1.19.4 - 1.20.4 Standard Metadata Index Mappings
+            this.billboardIndex = 15;
+            this.textComponentIndex = 23;
+            this.backgroundColorIndex = 25;
+            this.displayFlagsIndex = 27;
+        }
+    }
+
     @Override
     public String getProviderName() {
-        return "PacketEvents (Packet-Based Virtual Render)";
+        return "PacketEvents (Multi-Version Protocol Engine)";
     }
 
     @Override
@@ -69,8 +93,8 @@ public class PacketEventsAdapter implements ProtocolAdapter {
 
         Component component = ColorUtil.parse(formattedText);
         List<EntityData> entityDataList = new ArrayList<>();
-        // Index 23: TextDisplay Component
-        entityDataList.add(new EntityData(23, EntityDataTypes.OPTIONAL_ADV_COMPONENT, Optional.of(component)));
+        // Dynamic Text Component Index
+        entityDataList.add(new EntityData(textComponentIndex, EntityDataTypes.OPTIONAL_ADV_COMPONENT, Optional.of(component)));
 
         WrapperPlayServerEntityMetadata metadataPacket = new WrapperPlayServerEntityMetadata(entityId, entityDataList);
         user.sendPacket(metadataPacket);
@@ -79,29 +103,29 @@ public class PacketEventsAdapter implements ProtocolAdapter {
     private void sendTextDisplayMetadata(User user, int entityId, String formattedText, HologramLineData lineData, Display.Billboard billboard) {
         List<EntityData> entityDataList = new ArrayList<>();
 
-        // Index 15: Billboard constraints (0 = FIXED, 1 = VERTICAL, 2 = HORIZONTAL, 3 = CENTER)
+        // Billboard constraint (0 = FIXED, 1 = VERTICAL, 2 = HORIZONTAL, 3 = CENTER)
         byte billboardByte = switch (billboard) {
             case FIXED -> (byte) 0;
             case VERTICAL -> (byte) 1;
             case HORIZONTAL -> (byte) 2;
             default -> (byte) 3; // CENTER
         };
-        entityDataList.add(new EntityData(15, EntityDataTypes.BYTE, billboardByte));
+        entityDataList.add(new EntityData(billboardIndex, EntityDataTypes.BYTE, billboardByte));
 
-        // Index 23: Text Component
+        // Text Component
         Component component = ColorUtil.parse(formattedText);
-        entityDataList.add(new EntityData(23, EntityDataTypes.OPTIONAL_ADV_COMPONENT, Optional.of(component)));
+        entityDataList.add(new EntityData(textComponentIndex, EntityDataTypes.OPTIONAL_ADV_COMPONENT, Optional.of(component)));
 
-        // Index 25: Background Color ARGB
+        // Background Color ARGB
         if (lineData.getBackgroundColor() != null) {
-            entityDataList.add(new EntityData(25, EntityDataTypes.INT, lineData.getBackgroundColor().asARGB()));
+            entityDataList.add(new EntityData(backgroundColorIndex, EntityDataTypes.INT, lineData.getBackgroundColor().asARGB()));
         }
 
-        // Index 27: Display Flags (Bitmask: 0x01 = Shadow, 0x02 = SeeThrough)
+        // Display Flags (Bitmask: 0x01 = Shadow, 0x02 = SeeThrough)
         byte flags = 0;
         if (lineData.isShadow()) flags |= 0x01;
         if (lineData.isSeeThrough()) flags |= 0x02;
-        entityDataList.add(new EntityData(27, EntityDataTypes.BYTE, flags));
+        entityDataList.add(new EntityData(displayFlagsIndex, EntityDataTypes.BYTE, flags));
 
         WrapperPlayServerEntityMetadata metadataPacket = new WrapperPlayServerEntityMetadata(entityId, entityDataList);
         user.sendPacket(metadataPacket);

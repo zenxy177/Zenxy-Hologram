@@ -1,6 +1,7 @@
 com\zenxy\hologram\command\HologramCommand.class
 com\zenxy\hologram\model\HologramView.class
 com\zenxy\hologram\ZenxyHologramPlugin.class
+com\zenxy\hologram\core\PacketInteractionListener.class
 com\zenxy\hologram\storage\YamlStorage.class
 com\zenxy\hologram\integration\PlaceholderManager.class
 com\zenxy\hologram\protocol\impl\PacketEventsAdapter$1.class

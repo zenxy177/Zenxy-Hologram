@@ -71,6 +71,13 @@ public class ZenxyHologramPlugin extends JavaPlugin {
         // 7. Event & Command Registration
         getServer().getPluginManager().registerEvents(new InteractionHandler(hologramRenderer), this);
 
+        if (Bukkit.getPluginManager().isPluginEnabled("PacketEvents")) {
+            com.github.retrooper.packetevents.PacketEvents.getAPI().getEventManager().registerListener(
+                    new com.zenxy.hologram.core.PacketInteractionListener(this, hologramManager, hologramRenderer)
+            );
+            getLogger().info("[Hook] PacketEvents interaction listener registered!");
+        }
+
         HologramCommand cmd = new HologramCommand(this);
         if (getCommand("zenxyhologram") != null) {
             getCommand("zenxyhologram").setExecutor(cmd);
