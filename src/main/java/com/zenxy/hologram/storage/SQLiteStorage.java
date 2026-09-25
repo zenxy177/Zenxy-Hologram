@@ -35,16 +35,17 @@ public class SQLiteStorage implements StorageAdapter {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
 
-            // WAL Mode & Busy Timeout to prevent "database is locked" errors
+            // WAL Mode, Normal Synchronous & Busy Timeout to prevent database locks
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute("PRAGMA journal_mode=WAL;");
+                stmt.execute("PRAGMA synchronous=NORMAL;");
                 stmt.execute("PRAGMA busy_timeout=5000;");
                 stmt.executeUpdate("CREATE TABLE IF NOT EXISTS zenxy_holograms (" +
                         "id VARCHAR(64) PRIMARY KEY, " +
                         "data TEXT NOT NULL" +
                         ");");
             }
-            plugin.getLogger().info("SQLite storage initialized with WAL mode & busy timeout!");
+            plugin.getLogger().info("SQLite storage initialized with WAL mode, synchronous=NORMAL & busy timeout!");
         } catch (Exception e) {
             plugin.getLogger().severe("Failed to initialize SQLite storage!");
             e.printStackTrace();
