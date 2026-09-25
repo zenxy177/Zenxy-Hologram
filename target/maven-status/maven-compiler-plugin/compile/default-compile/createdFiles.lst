@@ -3,11 +3,11 @@ com\zenxy\hologram\model\HologramView.class
 com\zenxy\hologram\ZenxyHologramPlugin.class
 com\zenxy\hologram\core\PacketInteractionListener.class
 com\zenxy\hologram\storage\YamlStorage.class
+com\zenxy\hologram\core\PlayerListener.class
 com\zenxy\hologram\integration\PlaceholderManager.class
 com\zenxy\hologram\protocol\impl\PacketEventsAdapter$1.class
 com\zenxy\hologram\protocol\impl\PacketEventsAdapter.class
 com\zenxy\hologram\protocol\ProtocolAdapter.class
-com\zenxy\hologram\core\InteractionHandler.class
 com\zenxy\hologram\core\HologramManager.class
 com\zenxy\hologram\core\HologramTicker.class
 com\zenxy\hologram\model\HologramData.class

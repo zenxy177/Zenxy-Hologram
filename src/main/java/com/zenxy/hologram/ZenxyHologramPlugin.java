@@ -5,7 +5,8 @@ import com.zenxy.hologram.config.ConfigManager;
 import com.zenxy.hologram.core.HologramManager;
 import com.zenxy.hologram.core.HologramRenderer;
 import com.zenxy.hologram.core.HologramTicker;
-import com.zenxy.hologram.core.InteractionHandler;
+import com.zenxy.hologram.core.PacketInteractionListener;
+import com.zenxy.hologram.core.PlayerListener;
 import com.zenxy.hologram.integration.PlaceholderManager;
 import com.zenxy.hologram.protocol.ProtocolAdapter;
 import com.zenxy.hologram.protocol.impl.BukkitDisplayAdapter;
@@ -69,14 +70,15 @@ public class ZenxyHologramPlugin extends JavaPlugin {
         hologramTicker.startUpdateTask(updateInterval);
 
         // 7. Event & Command Registration
-        getServer().getPluginManager().registerEvents(new InteractionHandler(hologramRenderer), this);
-
+        com.zenxy.hologram.core.PacketInteractionListener packetListener = null;
         if (Bukkit.getPluginManager().isPluginEnabled("PacketEvents")) {
-            com.github.retrooper.packetevents.PacketEvents.getAPI().getEventManager().registerListener(
-                    new com.zenxy.hologram.core.PacketInteractionListener(this, hologramManager, hologramRenderer)
-            );
+            packetListener = new com.zenxy.hologram.core.PacketInteractionListener(this, hologramManager, hologramRenderer);
+            com.github.retrooper.packetevents.PacketEvents.getAPI().getEventManager().registerListener(packetListener);
             getLogger().info("[Hook] PacketEvents interaction listener registered!");
         }
+
+        // Register PlayerListener for PlayerQuitEvent and PlayerChangedWorldEvent
+        getServer().getPluginManager().registerEvents(new com.zenxy.hologram.core.PlayerListener(hologramRenderer, packetListener), this);
 
         HologramCommand cmd = new HologramCommand(this);
         if (getCommand("zenxyhologram") != null) {

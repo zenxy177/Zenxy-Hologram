@@ -19,8 +19,7 @@ public class PacketInteractionListener extends PacketListenerAbstract {
     private final JavaPlugin plugin;
     private final HologramManager hologramManager;
     private final HologramRenderer renderer;
-    // Anti-DoS Rate Limiter: Player UUID -> Last Click Timestamp
-    private final Map<UUID, Long> clickCooldowns = new ConcurrentHashMap<>();
+    private final Map<UUID, Long> clickCooldown = new ConcurrentHashMap<>();
 
     public PacketInteractionListener(JavaPlugin plugin, HologramManager hologramManager, HologramRenderer renderer) {
         this.plugin = plugin;
@@ -40,12 +39,12 @@ public class PacketInteractionListener extends PacketListenerAbstract {
             UUID uuid = player.getUniqueId();
             long now = System.currentTimeMillis();
 
-            // 1. Anti-DoS Debounce Check (Minimum 300ms cooldown between clicks)
-            Long lastClick = clickCooldowns.get(uuid);
+            // 1. Rate Limiting / Debounce (Minimum 300 ms aralık)
+            Long lastClick = clickCooldown.get(uuid);
             if (lastClick != null && (now - lastClick) < 300L) {
-                return; // Ignore spam click packet
+                return;
             }
-            clickCooldowns.put(uuid, now);
+            clickCooldown.put(uuid, now);
 
             Map<String, HologramView> views = renderer.getPlayerViews().get(uuid);
             if (views == null || views.isEmpty()) return;
@@ -55,7 +54,7 @@ public class PacketInteractionListener extends PacketListenerAbstract {
                     HologramData hologram = hologramManager.getHologram(view.getHologramId());
                     if (hologram != null && !hologram.getClickActions().isEmpty()) {
 
-                        // 2. Thread Safety: Netty I/O Thread -> Bukkit Main Thread Dispatch
+                        // 2. Netty Network Thread -> Bukkit Main Thread (Paper AsyncCatcher Fix)
                         Bukkit.getScheduler().runTask(plugin, () -> {
                             executeActions(player, hologram);
                         });
@@ -67,6 +66,7 @@ public class PacketInteractionListener extends PacketListenerAbstract {
     }
 
     private void executeActions(Player player, HologramData hologram) {
+        if (!player.isOnline()) return;
         for (String action : hologram.getClickActions()) {
             if (action.startsWith("[console] ")) {
                 String cmd = sanitizeCommand(action.substring(10).replace("%player%", player.getName()));
@@ -81,12 +81,12 @@ public class PacketInteractionListener extends PacketListenerAbstract {
         }
     }
 
-    /**
-     * Sanitizes command inputs to prevent console command injection attacks.
-     */
+    public void removeCooldown(UUID uuid) {
+        clickCooldown.remove(uuid);
+    }
+
     private String sanitizeCommand(String command) {
         if (command == null) return "";
-        // Strip line breaks, semicolons, null bytes, and command chaining characters
         return command.replaceAll("[;\\r\\n\\0|&]", "");
     }
 }

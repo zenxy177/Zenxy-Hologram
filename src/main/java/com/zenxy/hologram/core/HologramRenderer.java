@@ -134,13 +134,8 @@ public class HologramRenderer {
     }
 
     public void despawnAll() {
-        for (Map.Entry<UUID, Map<String, HologramView>> entry : playerViews.entrySet()) {
-            Player player = Bukkit.getPlayer(entry.getKey());
-            if (player != null && player.isOnline()) {
-                for (HologramView view : entry.getValue().values()) {
-                    protocolAdapter.destroyEntities(player, view.getAllEntityIds());
-                }
-            }
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            despawnAllForPlayer(player);
         }
         playerViews.clear();
     }
