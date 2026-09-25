@@ -10,36 +10,32 @@ import java.util.regex.Pattern;
 
 public class ColorUtil {
 
-    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.builder().build();
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
 
     /**
-     * Translates legacy color codes (&a, &#RRGGBB) and MiniMessage syntax (<red>, <gradient:...>) into Component.
+     * Modern Adventure Component parser. First attempts MiniMessage parsing (<gradient:...>, <rainbow>, etc.),
+     * falling back to Legacy Ampersand (&a, &#RRGGBB) formatting.
      */
     public static Component parse(String input) {
         if (input == null || input.isEmpty()) {
             return Component.empty();
         }
-        // First convert &#RRGGBB to legacy ChatColor format if present
-        String hexFormatted = parseHexColors(input);
-        
-        // Translate legacy ampersand format to Component
-        Component legacyComponent = LEGACY_SERIALIZER.deserialize(hexFormatted);
 
-        // Also attempt parsing with MiniMessage if tags exist
+        // 1. Try MiniMessage parsing if input contains tags
         if (input.contains("<") && input.contains(">")) {
             try {
                 return MINI_MESSAGE.deserialize(input);
             } catch (Exception ignored) {
             }
         }
-        return legacyComponent;
+
+        // 2. Legacy Ampersand & Hex Parsing (&#RRGGBB)
+        String hexFormatted = parseHexColors(input);
+        return LEGACY_SERIALIZER.deserialize(hexFormatted);
     }
 
-    /**
-     * Converts formatted text to legacy string (& / § format) for older packet serializers or log outputs.
-     */
     public static String colorize(String input) {
         if (input == null) return "";
         String hexParsed = parseHexColors(input);
@@ -47,6 +43,7 @@ public class ColorUtil {
     }
 
     private static String parseHexColors(String text) {
+        if (!text.contains("&#")) return text;
         Matcher matcher = HEX_PATTERN.matcher(text);
         StringBuilder builder = new StringBuilder(text.length());
         while (matcher.find()) {

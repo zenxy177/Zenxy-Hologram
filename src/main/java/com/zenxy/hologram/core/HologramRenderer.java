@@ -53,7 +53,9 @@ public class HologramRenderer {
             Map<String, HologramView> views = playerViews.computeIfAbsent(uuid, k -> new ConcurrentHashMap<>());
             Location pLoc = player.getLocation();
 
-            for (HologramData hologram : hologramManager.getAllHolograms()) {
+            Set<HologramData> nearbyHolograms = hologramManager.getNearbyHolograms(pLoc, 64.0);
+
+            for (HologramData hologram : nearbyHolograms) {
                 Location hLoc = hologram.getLocation();
 
                 boolean sameWorld = hLoc.getWorld() != null && hLoc.getWorld().equals(pLoc.getWorld());
