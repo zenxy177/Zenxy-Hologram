@@ -1,0 +1,34 @@
+# =======================================================
+#               ZENXY HOLOGRAM MESSAGES
+# =======================================================
+prefix: "<gradient:#FF5555:#FFAA00>&lZenxyHologram</gradient> <gray>»</gray> "
+
+no-permission: "<red>Bu komutu kullanmak için yetkiniz yok!</red>"
+hologram-not-found: "<red>'<name>' adında bir hologram bulunamadı!</red>"
+hologram-already-exists: "<red>'<name>' adında bir hologram zaten mevcut!</red>"
+invalid-line-index: "<red>Geçersiz satır numarası! (Mevcut satır sayısı: <max>)</red>"
+reload-success: "<green>Konfigürasyon ve hologramlar başarıyla yeniden yüklendi!</green>"
+
+created: "<green>'<name>' adında yeni bir TextDisplay hologramı başarıyla oluşturuldu!</green>"
+deleted: "<red>'<name>' hologramı başarıyla silindi!</red>"
+teleported: "<green>'<name>' hologramına ışınlandınız.</green>"
+moved: "<green>'<name>' hologramının konumu şu anki konumunuza taşındı.</green>"
+line-added: "<green>'<name>' hologramına yeni satır eklendi: <text></green>"
+line-removed: "<green>'<name>' hologramından <index>. satır silindi.</green>"
+line-set: "<green>'<name>' hologramının <index>. satırı güncellendi: <text></green>"
+scale-set: "<green>'<name>' hologramının <index>. satır boyutu <scale> olarak ayarlandı.</green>"
+bg-set: "<green>'<name>' hologramının <index>. satır arka plan rengi ayarlandı.</green>"
+billboard-set: "<green>'<name>' hologramının billboard modu <billboard> olarak güncellendi.</green>"
+
+help-header: "<gradient:#FF5555:#FFAA00>&lZenxyHologram Komut Listesi</gradient>"
+help-create: "<yellow>/zholo create <isim></yellow> - Bulunduğunuz konumda hologram oluşturur"
+help-delete: "<yellow>/zholo delete <isim></yellow> - Hologramı siler"
+help-list: "<yellow>/zholo list</yellow> - Tüm hologramları listeler"
+help-tp: "<yellow>/zholo tp <isim></yellow> - Holograma ışınlanır"
+help-move: "<yellow>/zholo movehere <isim></yellow> - Hologramı bulunduğunuz yere taşır"
+help-addline: "<yellow>/zholo addline <isim> <metin></yellow> - Holograma yeni satır ekler"
+help-setline: "<yellow>/zholo setline <isim> <index> <metin></yellow> - Satırı günceller"
+help-removeline: "<yellow>/zholo removeline <isim> <index></yellow> - Satırı siler"
+help-setscale: "<yellow>/zholo setscale <isim> <index> <scale></yellow> - Satır boyutunu ayarlar"
+help-setbg: "<yellow>/zholo setbg <isim> <index> <#AARRGGBB|transparent></yellow> - Satır arka planını ayarlar"
+help-reload: "<yellow>/zholo reload</yellow> - Konfigürasyonları ve hologramları yeniler"
