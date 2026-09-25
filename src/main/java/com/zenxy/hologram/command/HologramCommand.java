@@ -181,9 +181,10 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                 }
                 String text = String.join(" ", Arrays.copyOfRange(args, 2, args.length));
                 h.addLine(text);
+                int newIndex = h.getLines().size() - 1;
                 plugin.getHologramManager().saveHologram(h);
                 plugin.getHologramRenderer().refreshHologram(h);
-                sendMessage(sender, "line-added", Map.of("name", id, "text", text));
+                sendMessage(sender, "line-added", Map.of("name", id, "index", String.valueOf(newIndex), "text", text));
                 break;
             }
 

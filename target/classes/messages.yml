@@ -13,7 +13,7 @@ created: "<green>'<name>' adında yeni bir TextDisplay hologramı başarıyla ol
 deleted: "<red>'<name>' hologramı başarıyla silindi!</red>"
 teleported: "<green>'<name>' hologramına ışınlandınız.</green>"
 moved: "<green>'<name>' hologramının konumu şu anki konumunuza taşındı.</green>"
-line-added: "<green>'<name>' hologramına yeni satır eklendi: <text></green>"
+line-added: "<green>'<name>' hologramına <index>. satır olarak eklendi: <text></green>"
 line-removed: "<green>'<name>' hologramından <index>. satır silindi.</green>"
 line-set: "<green>'<name>' hologramının <index>. satırı güncellendi: <text></green>"
 scale-set: "<green>'<name>' hologramının <index>. satır boyutu <scale> olarak ayarlandı.</green>"
