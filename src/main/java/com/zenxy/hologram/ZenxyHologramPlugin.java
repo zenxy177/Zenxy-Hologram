@@ -14,6 +14,9 @@ import com.zenxy.hologram.protocol.impl.PacketEventsAdapter;
 import com.zenxy.hologram.protocol.impl.ProtocolLibAdapter;
 import com.zenxy.hologram.storage.StorageAdapter;
 import com.zenxy.hologram.storage.YamlStorage;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
+import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -84,6 +87,17 @@ public class ZenxyHologramPlugin extends JavaPlugin {
         if (getCommand("zenxyhologram") != null) {
             getCommand("zenxyhologram").setExecutor(cmd);
             getCommand("zenxyhologram").setTabCompleter(cmd);
+        }
+
+        // 8. bStats Metrics Setup
+        try {
+            int pluginId = 22177; // ZenxyHologram bStats ID
+            Metrics metrics = new Metrics(this, pluginId);
+            metrics.addCustomChart(new SimplePie("protocol_engine", () -> protocolAdapter.getProviderName()));
+            metrics.addCustomChart(new SimplePie("storage_engine", () -> getConfig().getString("settings.storage-type", "SQLITE")));
+            metrics.addCustomChart(new SingleLineChart("total_holograms", () -> hologramManager.getAllHolograms().size()));
+            getLogger().info("[Metrics] bStats telemetry metrics initialized.");
+        } catch (Exception ignored) {
         }
 
         getLogger().info("ZenxyHologram standard boot complete!");

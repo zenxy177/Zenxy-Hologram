@@ -105,18 +105,27 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                 if (!(sender instanceof Player player)) return true;
                 double r = 15.0;
                 if (args.length >= 2) {
-                    try { r = Double.parseDouble(args[1]); } catch (Exception ignored) {}
+                    try {
+                        r = Double.parseDouble(args[1]);
+                        if (r <= 0) {
+                            player.sendMessage(ColorUtil.parse("<red>Radyus sıfırdan büyük bir sayı olmalıdır!</red>"));
+                            return true;
+                        }
+                    } catch (NumberFormatException e) {
+                        player.sendMessage(ColorUtil.parse("<red>Geçersiz radyus değeri! Lütfen bir sayı giriniz.</red>"));
+                        return true;
+                    }
                 }
                 final double radius = r;
                 Location pLoc = player.getLocation();
                 List<HologramData> nearby = plugin.getHologramManager().getAllHolograms().stream()
                         .filter(h -> h.getLocation().getWorld() != null && h.getLocation().getWorld().equals(pLoc.getWorld()))
-                        .filter(h -> h.getLocation().distance(pLoc) <= radius)
+                        .filter(h -> h.getLocation().distanceSquared(pLoc) <= (radius * radius))
                         .toList();
 
                 player.sendMessage(ColorUtil.parse("<gradient:#FF5555:#FFAA00>&lYakındaki Hologramlar (" + nearby.size() + "):</gradient>"));
                 for (HologramData h : nearby) {
-                    double dist = Math.round(h.getLocation().distance(pLoc) * 10.0) / 10.0;
+                    double dist = Math.round(Math.sqrt(h.getLocation().distanceSquared(pLoc)) * 10.0) / 10.0;
                     player.sendMessage(ColorUtil.parse(" &8- &e" + h.getId() + " &7(" + dist + "m uzaklıkta)"));
                 }
                 break;

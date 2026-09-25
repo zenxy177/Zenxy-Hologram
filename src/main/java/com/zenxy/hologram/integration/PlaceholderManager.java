@@ -17,7 +17,8 @@ public class PlaceholderManager {
     }
 
     /**
-     * Parses PlaceholderAPI placeholders if installed, otherwise returns text as-is.
+     * Parses PlaceholderAPI placeholders safely. Catches any Throwable thrown by external expansions,
+     * returning the raw string without halting system operation.
      */
     public String setPlaceholders(Player player, String text) {
         if (text == null || text.isEmpty()) {
@@ -26,7 +27,8 @@ public class PlaceholderManager {
         if (papiEnabled && player != null) {
             try {
                 return PlaceholderAPI.setPlaceholders(player, text);
-            } catch (Exception e) {
+            } catch (Throwable t) {
+                // Return raw text safely if an external placeholder expansion throws an error/exception
                 return text;
             }
         }
