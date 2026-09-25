@@ -36,8 +36,13 @@ public class ZenxyHologramPlugin extends JavaPlugin {
         configManager = new ConfigManager(this);
         configManager.reload();
 
-        // 2. Storage Setup
-        storageAdapter = new YamlStorage(this);
+        // 2. Storage Setup (SQLITE or YAML)
+        String storageType = getConfig().getString("settings.storage-type", "SQLITE").toUpperCase();
+        if ("SQLITE".equals(storageType)) {
+            storageAdapter = new com.zenxy.hologram.storage.SQLiteStorage(this);
+        } else {
+            storageAdapter = new YamlStorage(this);
+        }
         storageAdapter.init();
 
         // 3. Hologram Manager

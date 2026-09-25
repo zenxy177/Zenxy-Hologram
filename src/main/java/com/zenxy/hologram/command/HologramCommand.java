@@ -4,6 +4,7 @@ import com.zenxy.hologram.ZenxyHologramPlugin;
 import com.zenxy.hologram.model.HologramData;
 import com.zenxy.hologram.util.ColorUtil;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -96,6 +97,27 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(ColorUtil.parse("<gradient:#FF5555:#FFAA00>&lMevcut Hologramlar (" + all.size() + "):</gradient>"));
                 for (HologramData h : all) {
                     sender.sendMessage(ColorUtil.parse(" &8- &e" + h.getId() + " &7(Satır: " + h.getLines().size() + ", Dünya: " + (h.getLocation().getWorld() != null ? h.getLocation().getWorld().getName() : "null") + ")"));
+                }
+                break;
+            }
+
+            case "near": {
+                if (!(sender instanceof Player player)) return true;
+                double r = 15.0;
+                if (args.length >= 2) {
+                    try { r = Double.parseDouble(args[1]); } catch (Exception ignored) {}
+                }
+                final double radius = r;
+                Location pLoc = player.getLocation();
+                List<HologramData> nearby = plugin.getHologramManager().getAllHolograms().stream()
+                        .filter(h -> h.getLocation().getWorld() != null && h.getLocation().getWorld().equals(pLoc.getWorld()))
+                        .filter(h -> h.getLocation().distance(pLoc) <= radius)
+                        .toList();
+
+                player.sendMessage(ColorUtil.parse("<gradient:#FF5555:#FFAA00>&lYakındaki Hologramlar (" + nearby.size() + "):</gradient>"));
+                for (HologramData h : nearby) {
+                    double dist = Math.round(h.getLocation().distance(pLoc) * 10.0) / 10.0;
+                    player.sendMessage(ColorUtil.parse(" &8- &e" + h.getId() + " &7(" + dist + "m uzaklıkta)"));
                 }
                 break;
             }
@@ -280,6 +302,7 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-create")));
         sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-delete")));
         sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-list")));
+        sender.sendMessage(ColorUtil.parse("<yellow>/zholo near [radyus]</yellow> - Yakındaki hologramları gösterir"));
         sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-tp")));
         sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-move")));
         sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-addline")));
@@ -292,7 +315,7 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return filter(List.of("create", "delete", "list", "tp", "movehere", "addline", "setline", "removeline", "setscale", "setbillboard", "reload"), args[0]);
+            return filter(List.of("create", "delete", "list", "near", "tp", "movehere", "addline", "setline", "removeline", "setscale", "setbillboard", "reload"), args[0]);
         }
         if (args.length == 2 && List.of("delete", "tp", "movehere", "addline", "setline", "removeline", "setscale", "setbillboard").contains(args[0].toLowerCase())) {
             return filter(plugin.getHologramManager().getAllHolograms().stream().map(HologramData::getId).toList(), args[1]);

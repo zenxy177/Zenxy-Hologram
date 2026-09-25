@@ -3,6 +3,9 @@
 # =======================================================
 
 settings:
+  # Storage engine type: SQLITE (Recommended for zero lag & crash safety) or YAML
+  storage-type: "SQLITE"
+
   # Hologram render distance in blocks for packet culling
   render-distance: 48
 

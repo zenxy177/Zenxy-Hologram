@@ -11,6 +11,7 @@ com\zenxy\hologram\core\HologramManager.class
 com\zenxy\hologram\core\HologramTicker.class
 com\zenxy\hologram\model\HologramData.class
 com\zenxy\hologram\model\HologramLineData.class
+com\zenxy\hologram\storage\SQLiteStorage.class
 com\zenxy\hologram\util\ColorUtil.class
 com\zenxy\hologram\config\ConfigManager.class
 com\zenxy\hologram\core\HologramRenderer.class

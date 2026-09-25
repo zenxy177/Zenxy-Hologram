@@ -20,8 +20,8 @@ public class HologramRenderer {
     private final ProtocolAdapter protocolAdapter;
     private final PlaceholderManager placeholderManager;
 
-    // Entity ID Generator for virtual entities (Starting at 2,000,000,000 to avoid server entity ID collision)
-    private final AtomicInteger idGenerator = new AtomicInteger(2000000000);
+    // Entity ID Generator for virtual entities (Negative IDs guarantee 0% collision with Minecraft server entities)
+    private final AtomicInteger idGenerator = new AtomicInteger(-1000000);
 
     // Active views per player: Player UUID -> (Hologram ID -> HologramView)
     private final Map<UUID, Map<String, HologramView>> playerViews = new ConcurrentHashMap<>();
