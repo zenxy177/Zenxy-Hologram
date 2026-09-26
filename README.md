@@ -4,7 +4,7 @@
 
 [![Spigot](https://img.shields.io/badge/Spigot-1.20%2B-orange?style=for-the-badge&logo=spigotmc)](https://www.spigotmc.org)
 [![Java](https://img.shields.io/badge/Java-17%2B-blue?style=for-the-badge&logo=java)](https://adoptium.net)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)](LICENSE)
 [![bStats](https://img.shields.io/badge/bStats-34332-blueviolet?style=for-the-badge)](https://bstats.org/plugin/bukkit/ZenxyHologram/34332)
 
 > Modern, hafif ve tam özelleştirilebilir bir hologram eklentisi.  
@@ -172,7 +172,15 @@ Pull request ve önerilere açığız! Bir hata bulduysanız ya da yeni bir öze
 
 ## 📜 Lisans
 
-MIT License — Dilediğiniz gibi kullanın, ticari projelerinize entegre edin.
+Bu proje **ZenxyTeam'e ait özel/proprietary bir lisans** altındadır.
+
+- ✅ Kendi sunucunuzda çalıştırabilirsiniz
+- ✅ Kaynak kodunu inceleyebilirsiniz
+- ❌ Yeniden dağıtamazsınız (SpigotMC, GitHub vb.)
+- ❌ Adını/kodunu değiştirip kendinizmiş gibi yayınlayamazsınız
+- ❌ Satışa sunamazsınız
+
+Tüm hakları saklıdır. Detaylar için [LICENSE](LICENSE) dosyasını inceleyiniz.
 
 ---
 
