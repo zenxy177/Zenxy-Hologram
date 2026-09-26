@@ -14,6 +14,7 @@ public class ConfigManager {
     private File messagesFile;
     private FileConfiguration messagesConfig;
     private final Map<String, String> messagesCache = new HashMap<>();
+    private String language = "en-US"; // default language
 
     public ConfigManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -23,9 +24,18 @@ public class ConfigManager {
         plugin.saveDefaultConfig();
         plugin.reloadConfig();
 
-        messagesFile = new File(plugin.getDataFolder(), "messages.yml");
+        // Load language setting (en-US default)
+        this.language = plugin.getConfig().getString("settings.language", "en-US");
+
+        // Choose appropriate messages file based on language
+        String messagesFileName = "messages.yml";
+        if (!"tr-TR".equalsIgnoreCase(this.language)) {
+            messagesFileName = "messages-en-US.yml";
+        }
+        messagesFile = new File(plugin.getDataFolder(), messagesFileName);
         if (!messagesFile.exists()) {
-            plugin.saveResource("messages.yml", false);
+            // Fallback to default Turkish messages if language file missing
+            messagesFile = new File(plugin.getDataFolder(), "messages.yml");
         }
         messagesConfig = YamlConfiguration.loadConfiguration(messagesFile);
 

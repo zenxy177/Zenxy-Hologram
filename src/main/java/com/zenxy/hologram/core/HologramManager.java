@@ -94,6 +94,13 @@ public class HologramManager {
         return false;
     }
 
+    public void updateLocation(HologramData hologram, Location newLocation) {
+        deindexHologram(hologram);
+        hologram.setLocation(newLocation);
+        indexHologram(hologram);
+        storage.saveHologram(hologram);
+    }
+
     public HologramData getHologram(String id) {
         return hologramMap.get(id.toLowerCase());
     }

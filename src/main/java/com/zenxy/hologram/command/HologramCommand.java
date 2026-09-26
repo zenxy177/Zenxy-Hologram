@@ -83,7 +83,7 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                 String id = args[1];
                 HologramData h = plugin.getHologramManager().getHologram(id);
                 if (h != null) {
-                    plugin.getHologramRenderer().refreshHologram(h);
+                    plugin.getHologramRenderer().despawnHologramForAll(id);
                     plugin.getHologramManager().deleteHologram(id);
                     sendMessage(sender, "deleted", Map.of("name", id));
                 } else {
@@ -161,8 +161,7 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                     sendMessage(player, "hologram-not-found", Map.of("name", id));
                     return true;
                 }
-                h.setLocation(player.getLocation());
-                plugin.getHologramManager().saveHologram(h);
+                plugin.getHologramManager().updateLocation(h, player.getLocation());
                 plugin.getHologramRenderer().refreshHologram(h);
                 sendMessage(player, "moved", Map.of("name", id));
                 break;
@@ -238,6 +237,78 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                     }
                 } catch (NumberFormatException e) {
                     sender.sendMessage(ColorUtil.parse("<red>İndex bir sayı olmalıdır!</red>"));
+                }
+                break;
+            }
+
+            case "addaction": {
+                if (args.length < 4) {
+                    sender.sendMessage(ColorUtil.parse("<red>Kullanım: /zholo addaction <isim> <player|console|message|sound|server> <eylem></red>"));
+                    return true;
+                }
+                String id = args[1];
+                HologramData h = plugin.getHologramManager().getHologram(id);
+                if (h == null) {
+                    sendMessage(sender, "hologram-not-found", Map.of("name", id));
+                    return true;
+                }
+                String type = args[2].toLowerCase().replace("[", "").replace("]", "");
+                String actionBody = String.join(" ", Arrays.copyOfRange(args, 3, args.length));
+                String fullAction = "[" + type + "] " + actionBody;
+
+                h.addAction(fullAction);
+                int newIndex = h.getClickActions().size() - 1;
+                plugin.getHologramManager().saveHologram(h);
+                plugin.getHologramRenderer().refreshHologram(h);
+                sendMessage(sender, "action-added", Map.of("name", id, "index", String.valueOf(newIndex), "action", fullAction));
+                break;
+            }
+
+            case "removeaction": {
+                if (args.length < 3) {
+                    sender.sendMessage(ColorUtil.parse("<red>Kullanım: /zholo removeaction <isim> <index></red>"));
+                    return true;
+                }
+                String id = args[1];
+                HologramData h = plugin.getHologramManager().getHologram(id);
+                if (h == null) {
+                    sendMessage(sender, "hologram-not-found", Map.of("name", id));
+                    return true;
+                }
+                try {
+                    int idx = Integer.parseInt(args[2]);
+                    if (h.removeAction(idx)) {
+                        plugin.getHologramManager().saveHologram(h);
+                        plugin.getHologramRenderer().refreshHologram(h);
+                        sendMessage(sender, "action-removed", Map.of("name", id, "index", String.valueOf(idx)));
+                    } else {
+                        sendMessage(sender, "invalid-action-index", Map.of("max", String.valueOf(h.getClickActions().size())));
+                    }
+                } catch (NumberFormatException e) {
+                    sender.sendMessage(ColorUtil.parse("<red>İndex bir sayı olmalıdır!</red>"));
+                }
+                break;
+            }
+
+            case "listactions":
+            case "actions": {
+                if (args.length < 2) {
+                    sender.sendMessage(ColorUtil.parse("<red>Kullanım: /zholo listactions <isim></red>"));
+                    return true;
+                }
+                String id = args[1];
+                HologramData h = plugin.getHologramManager().getHologram(id);
+                if (h == null) {
+                    sendMessage(sender, "hologram-not-found", Map.of("name", id));
+                    return true;
+                }
+                if (h.getClickActions().isEmpty()) {
+                    sendMessage(sender, "no-actions", Map.of("name", id));
+                    return true;
+                }
+                sender.sendMessage(ColorUtil.parse("<gradient:#FF5555:#FFAA00>&l'" + h.getId() + "' Hologramı Eylemleri (" + h.getClickActions().size() + "):</gradient>"));
+                for (int i = 0; i < h.getClickActions().size(); i++) {
+                    sender.sendMessage(ColorUtil.parse(" &8- &e[" + i + "] &f" + h.getClickActions().get(i)));
                 }
                 break;
             }
@@ -318,6 +389,9 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-addline")));
         sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-setline")));
         sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-removeline")));
+        sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-addaction")));
+        sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-removeaction")));
+        sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-listactions")));
         sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-setscale")));
         sender.sendMessage(ColorUtil.parse(plugin.getConfigManager().getMessage("help-reload")));
     }
@@ -325,9 +399,9 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
-            return filter(List.of("create", "delete", "list", "near", "tp", "movehere", "addline", "setline", "removeline", "setscale", "setbillboard", "reload"), args[0]);
+            return filter(List.of("create", "delete", "remove", "list", "near", "tp", "movehere", "addline", "setline", "removeline", "addaction", "removeaction", "listactions", "actions", "setscale", "setbillboard", "reload"), args[0]);
         }
-        if (args.length == 2 && List.of("delete", "tp", "movehere", "addline", "setline", "removeline", "setscale", "setbillboard").contains(args[0].toLowerCase())) {
+        if (args.length == 2 && List.of("delete", "remove", "tp", "movehere", "addline", "setline", "removeline", "addaction", "removeaction", "listactions", "actions", "setscale", "setbillboard").contains(args[0].toLowerCase())) {
             return filter(plugin.getHologramManager().getAllHolograms().stream().map(HologramData::getId).toList(), args[1]);
         }
         if (args.length == 3 && List.of("setline", "removeline", "setscale").contains(args[0].toLowerCase())) {
@@ -337,6 +411,20 @@ public class HologramCommand implements CommandExecutor, TabCompleter {
                 for (int i = 0; i < h.getLines().size(); i++) indices.add(String.valueOf(i));
                 return filter(indices, args[2]);
             }
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("addaction")) {
+            return filter(List.of("player", "console", "message", "sound", "server"), args[2]);
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("removeaction")) {
+            HologramData h = plugin.getHologramManager().getHologram(args[1]);
+            if (h != null) {
+                List<String> indices = new ArrayList<>();
+                for (int i = 0; i < h.getClickActions().size(); i++) indices.add(String.valueOf(i));
+                return filter(indices, args[2]);
+            }
+        }
+        if (args.length == 4 && args[0].equalsIgnoreCase("addaction") && args[2].equalsIgnoreCase("sound")) {
+            return filter(List.of("ENTITY_PLAYER_LEVELUP", "ENTITY_EXPERIENCE_ORB_PICKUP", "BLOCK_NOTE_BLOCK_PLING", "UI_BUTTON_CLICK", "ENTITY_FIREWORK_ROCKET_BLAST"), args[3]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("setbillboard")) {
             return filter(List.of("CENTER", "FIXED", "VERTICAL", "HORIZONTAL"), args[2]);

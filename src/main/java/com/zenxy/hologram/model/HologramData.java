@@ -94,6 +94,22 @@ public class HologramData {
         return clickActions;
     }
 
+    public void addAction(String action) {
+        clickActions.add(action);
+    }
+
+    public boolean removeAction(int index) {
+        if (index >= 0 && index < clickActions.size()) {
+            clickActions.remove(index);
+            return true;
+        }
+        return false;
+    }
+
+    public void clearActions() {
+        clickActions.clear();
+    }
+
     public Location getLineLocation(int lineIndex) {
         // Line 0 is top, subsequent lines offset downwards by lineSpacing
         return location.clone().add(0, - (lineIndex * lineSpacing), 0);

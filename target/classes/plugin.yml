@@ -4,7 +4,7 @@ main: com.zenxy.hologram.ZenxyHologramPlugin
 api-version: '1.20'
 author: ZenxyTeam
 description: Next-Generation Modern TextDisplay & Packet-Based Hologram Plugin
-softdepend: [PacketEvents, ProtocolLib, PlaceholderAPI]
+softdepend: [ProtocolLib, PlaceholderAPI]
 
 commands:
   zenxyhologram:

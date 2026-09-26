@@ -26,3 +26,6 @@ settings:
 
   # Enable debug mode in console
   debug: false
+
+  # Language for messages (en-US or tr-TR)
+  language: "en-US"

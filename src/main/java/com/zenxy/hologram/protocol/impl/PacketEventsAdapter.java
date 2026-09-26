@@ -22,31 +22,33 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public class PacketEventsAdapter implements ProtocolAdapter {
 
-    // Version-aware DataWatcher Index Resolver (1.19.4 vs 1.20 vs 1.21)
+    // Version-aware DataWatcher Index Resolver (1.19.4-1.20.1 vs 1.20.2+)
     private final int textComponentIndex;
     private final int billboardIndex;
     private final int backgroundColorIndex;
     private final int displayFlagsIndex;
+    private final int lineWidthIndex;
 
     public PacketEventsAdapter() {
         ServerVersion version = PacketEvents.getAPI().getServerManager().getVersion();
-        if (version.isNewerThanOrEquals(ServerVersion.V_1_20_5)) {
-            // MC 1.20.5 - 1.21+ Metadata Index Mappings
+        if (version.isNewerThanOrEquals(ServerVersion.V_1_20_2)) {
+            // MC 1.20.2 - 1.21+ Metadata Index Mappings
             this.billboardIndex = 15;
             this.textComponentIndex = 23;
+            this.lineWidthIndex = 24;
             this.backgroundColorIndex = 25;
             this.displayFlagsIndex = 27;
         } else {
-            // MC 1.19.4 - 1.20.4 Standard Metadata Index Mappings
-            this.billboardIndex = 15;
-            this.textComponentIndex = 23;
-            this.backgroundColorIndex = 25;
-            this.displayFlagsIndex = 27;
+            // MC 1.19.4 - 1.20.1 Metadata Index Mappings
+            this.billboardIndex = 14;
+            this.textComponentIndex = 22;
+            this.lineWidthIndex = 23;
+            this.backgroundColorIndex = 24;
+            this.displayFlagsIndex = 26;
         }
     }
 
@@ -93,8 +95,8 @@ public class PacketEventsAdapter implements ProtocolAdapter {
 
         Component component = ColorUtil.parse(formattedText);
         List<EntityData> entityDataList = new ArrayList<>();
-        // Dynamic Text Component Index
-        entityDataList.add(new EntityData(textComponentIndex, EntityDataTypes.OPTIONAL_ADV_COMPONENT, Optional.of(component)));
+        // Text Component DataWatcher
+        entityDataList.add(new EntityData(textComponentIndex, EntityDataTypes.ADV_COMPONENT, component));
 
         WrapperPlayServerEntityMetadata metadataPacket = new WrapperPlayServerEntityMetadata(entityId, entityDataList);
         user.sendPacket(metadataPacket);
@@ -112,9 +114,12 @@ public class PacketEventsAdapter implements ProtocolAdapter {
         };
         entityDataList.add(new EntityData(billboardIndex, EntityDataTypes.BYTE, billboardByte));
 
-        // Text Component
+        // Text Component (Adventure Component)
         Component component = ColorUtil.parse(formattedText);
-        entityDataList.add(new EntityData(textComponentIndex, EntityDataTypes.OPTIONAL_ADV_COMPONENT, Optional.of(component)));
+        entityDataList.add(new EntityData(textComponentIndex, EntityDataTypes.ADV_COMPONENT, component));
+
+        // Line width (default 200)
+        entityDataList.add(new EntityData(lineWidthIndex, EntityDataTypes.INT, 200));
 
         // Background Color ARGB
         if (lineData.getBackgroundColor() != null) {
@@ -164,7 +169,11 @@ public class PacketEventsAdapter implements ProtocolAdapter {
         User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
         if (user == null) return entityId;
 
-        Location loc = hologram.getLocation();
+        int lineCount = Math.max(1, hologram.getLines().size());
+        double totalHeight = lineCount * hologram.getLineSpacing() + 0.4;
+        
+        // Offset Y so hitbox spans from bottom line up to top line
+        Location loc = hologram.getLocation().clone().add(0, - ((lineCount - 1) * hologram.getLineSpacing()) - 0.2, 0);
         com.github.retrooper.packetevents.protocol.world.Location peLoc = new com.github.retrooper.packetevents.protocol.world.Location(
                 loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch()
         );
@@ -180,6 +189,16 @@ public class PacketEventsAdapter implements ProtocolAdapter {
         );
 
         user.sendPacket(spawnPacket);
+
+        // Interaction Entity DataWatcher (Index 8 = Width, Index 9 = Height, Index 10 = Response)
+        List<EntityData> entityDataList = new ArrayList<>();
+        entityDataList.add(new EntityData(8, EntityDataTypes.FLOAT, 2.0f)); // Width
+        entityDataList.add(new EntityData(9, EntityDataTypes.FLOAT, (float) totalHeight)); // Height
+        entityDataList.add(new EntityData(10, EntityDataTypes.BOOLEAN, true)); // Response
+
+        WrapperPlayServerEntityMetadata metadataPacket = new WrapperPlayServerEntityMetadata(entityId, entityDataList);
+        user.sendPacket(metadataPacket);
+
         return entityId;
     }
 }

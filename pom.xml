@@ -55,12 +55,12 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- PacketEvents API -->
+        <!-- PacketEvents API (Embedded / Shaded for plug-and-play independence) -->
         <dependency>
             <groupId>com.github.retrooper</groupId>
             <artifactId>packetevents-spigot</artifactId>
             <version>${packetevents.version}</version>
-            <scope>provided</scope>
+            <scope>compile</scope>
         </dependency>
 
         <!-- PlaceholderAPI -->
@@ -83,7 +83,7 @@
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
-            <version>3.0.2</version>
+            <version>3.2.1</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -117,6 +117,14 @@
                                 <relocation>
                                     <pattern>org.bstats</pattern>
                                     <shadedPattern>com.zenxy.hologram.bstats</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.github.retrooper.packetevents</pattern>
+                                    <shadedPattern>com.zenxy.hologram.packetevents</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>io.github.retrooper.packetevents</pattern>
+                                    <shadedPattern>com.zenxy.hologram.packetevents</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

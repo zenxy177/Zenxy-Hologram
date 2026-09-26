@@ -1,7 +1,7 @@
 # =======================================================
 #               ZENXY HOLOGRAM MESSAGES
 # =======================================================
-prefix: "<gradient:#FF5555:#FFAA00>&lZenxyHologram</gradient> <gray>»</gray> "
+prefix: "<gradient:#FF5555:#FFAA00><b>ZenxyHologram</b></gradient> <gray>»</gray> "
 
 no-permission: "<red>Bu komutu kullanmak için yetkiniz yok!</red>"
 hologram-not-found: "<red>'<name>' adında bir hologram bulunamadı!</red>"
@@ -19,8 +19,12 @@ line-set: "<green>'<name>' hologramının <index>. satırı güncellendi: <text>
 scale-set: "<green>'<name>' hologramının <index>. satır boyutu <scale> olarak ayarlandı.</green>"
 bg-set: "<green>'<name>' hologramının <index>. satır arka plan rengi ayarlandı.</green>"
 billboard-set: "<green>'<name>' hologramının billboard modu <billboard> olarak güncellendi.</green>"
+action-added: "<green>'<name>' hologramına <index>. eylem başarıyla eklendi: <action></green>"
+action-removed: "<green>'<name>' hologramından <index>. eylem silindi.</green>"
+invalid-action-index: "<red>Geçersiz eylem numarası! (Mevcut eylem sayısı: <max>)</red>"
+no-actions: "<yellow>'<name>' hologramında tanımlı herhangi bir tıklama eylemi bulunmuyor.</yellow>"
 
-help-header: "<gradient:#FF5555:#FFAA00>&lZenxyHologram Komut Listesi</gradient>"
+help-header: "<gradient:#FF5555:#FFAA00><b>ZenxyHologram Komut Listesi</b></gradient>"
 help-create: "<yellow>/zholo create <isim></yellow> - Bulunduğunuz konumda hologram oluşturur"
 help-delete: "<yellow>/zholo delete <isim></yellow> - Hologramı siler"
 help-list: "<yellow>/zholo list</yellow> - Tüm hologramları listeler"
@@ -29,6 +33,9 @@ help-move: "<yellow>/zholo movehere <isim></yellow> - Hologramı bulunduğunuz y
 help-addline: "<yellow>/zholo addline <isim> <metin></yellow> - Holograma yeni satır ekler"
 help-setline: "<yellow>/zholo setline <isim> <index> <metin></yellow> - Satırı günceller"
 help-removeline: "<yellow>/zholo removeline <isim> <index></yellow> - Satırı siler"
+help-addaction: "<yellow>/zholo addaction <isim> <player|console|message|sound> <eylem></yellow> - Tıklama eylemi ekler"
+help-removeaction: "<yellow>/zholo removeaction <isim> <index></yellow> - Tıklama eylemini siler"
+help-listactions: "<yellow>/zholo listactions <isim></yellow> - Hologramın eylemlerini listeler"
 help-setscale: "<yellow>/zholo setscale <isim> <index> <scale></yellow> - Satır boyutunu ayarlar"
 help-setbg: "<yellow>/zholo setbg <isim> <index> <#AARRGGBB|transparent></yellow> - Satır arka planını ayarlar"
 help-reload: "<yellow>/zholo reload</yellow> - Konfigürasyonları ve hologramları yeniler"

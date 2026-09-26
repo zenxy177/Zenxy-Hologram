@@ -10,28 +10,29 @@ import java.util.regex.Pattern;
 
 public class ColorUtil {
 
-    private static final MiniMessage MINI_MESSAGE = MiniMessage.builder().build();
+    private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.legacyAmpersand();
     private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
 
     /**
-     * Modern Adventure Component parser. First attempts MiniMessage parsing (<gradient:...>, <rainbow>, etc.),
-     * falling back to Legacy Ampersand (&a, &#RRGGBB) formatting.
+     * Translates legacy color codes (&a, &#RRGGBB) and MiniMessage syntax (<gradient:...>, <rainbow>, <red>, <b>)
+     * into a rich Adventure Component.
      */
     public static Component parse(String input) {
         if (input == null || input.isEmpty()) {
             return Component.empty();
         }
 
-        // 1. Try MiniMessage parsing if input contains tags
+        // 1. Try MiniMessage parsing if input contains XML-like tags
         if (input.contains("<") && input.contains(">")) {
             try {
-                return MINI_MESSAGE.deserialize(input);
+                String normalized = normalizeLegacyInMiniMessage(input);
+                return MINI_MESSAGE.deserialize(normalized);
             } catch (Exception ignored) {
             }
         }
 
-        // 2. Legacy Ampersand & Hex Parsing (&#RRGGBB)
+        // 2. Legacy Ampersand & Hex Parsing (&#RRGGBB, &a, &l)
         String hexFormatted = parseHexColors(input);
         return LEGACY_SERIALIZER.deserialize(hexFormatted);
     }
@@ -40,6 +41,16 @@ public class ColorUtil {
         if (input == null) return "";
         String hexParsed = parseHexColors(input);
         return ChatColor.translateAlternateColorCodes('&', hexParsed);
+    }
+
+    private static String normalizeLegacyInMiniMessage(String text) {
+        // Convert common legacy formatting tags if used inside MiniMessage tags
+        return text.replace("&l", "<b>")
+                .replace("&o", "<i>")
+                .replace("&n", "<u>")
+                .replace("&m", "<st>")
+                .replace("&k", "<obf>")
+                .replace("&r", "<reset>");
     }
 
     private static String parseHexColors(String text) {

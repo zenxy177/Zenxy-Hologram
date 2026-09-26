@@ -53,26 +53,32 @@ public class HologramRenderer {
             Map<String, HologramView> views = playerViews.computeIfAbsent(uuid, k -> new ConcurrentHashMap<>());
             Location pLoc = player.getLocation();
 
-            Set<HologramData> nearbyHolograms = hologramManager.getNearbyHolograms(pLoc, 64.0);
-
-            for (HologramData hologram : nearbyHolograms) {
+            // 1. Despawn any hologram currently rendered that was deleted or moved out of range/world
+            for (String holoId : new ArrayList<>(views.keySet())) {
+                HologramData hologram = hologramManager.getHologram(holoId);
+                if (hologram == null) {
+                    despawnHologramForPlayer(player, holoId, views);
+                    continue;
+                }
                 Location hLoc = hologram.getLocation();
+                boolean sameWorld = hLoc.getWorld() != null && hLoc.getWorld().equals(pLoc.getWorld());
+                boolean inRange = sameWorld && hLoc.distanceSquared(pLoc) <= (hologram.getRenderDistance() * hologram.getRenderDistance());
+                if (!inRange) {
+                    despawnHologramForPlayer(player, holoId, views);
+                }
+            }
 
+            // 2. Spawn nearby holograms entering render distance
+            Set<HologramData> nearbyHolograms = hologramManager.getNearbyHolograms(pLoc, 64.0);
+            for (HologramData hologram : nearbyHolograms) {
+                if (views.containsKey(hologram.getId())) continue;
+
+                Location hLoc = hologram.getLocation();
                 boolean sameWorld = hLoc.getWorld() != null && hLoc.getWorld().equals(pLoc.getWorld());
                 boolean inRange = sameWorld && hLoc.distanceSquared(pLoc) <= (hologram.getRenderDistance() * hologram.getRenderDistance());
 
-                HologramView existingView = views.get(hologram.getId());
-
                 if (inRange) {
-                    if (existingView == null) {
-                        // Player entered render distance -> Spawn Hologram
-                        spawnHologramForPlayer(player, hologram, views);
-                    }
-                } else {
-                    if (existingView != null) {
-                        // Player exited render distance -> Despawn Hologram
-                        despawnHologramForPlayer(player, hologram.getId(), views);
-                    }
+                    spawnHologramForPlayer(player, hologram, views);
                 }
             }
         }
@@ -109,6 +115,18 @@ public class HologramRenderer {
     }
 
     /**
+     * Completely destroys and despawns a hologram for all online players (e.g. when deleted).
+     */
+    public void despawnHologramForAll(String hologramId) {
+        for (Map.Entry<UUID, Map<String, HologramView>> entry : playerViews.entrySet()) {
+            Player player = Bukkit.getPlayer(entry.getKey());
+            if (player != null && player.isOnline()) {
+                despawnHologramForPlayer(player, hologramId, entry.getValue());
+            }
+        }
+    }
+
+    /**
      * Instantly refreshes a hologram for all active viewers upon modification.
      */
     public void refreshHologram(HologramData hologram) {
@@ -118,6 +136,12 @@ public class HologramRenderer {
                 Map<String, HologramView> views = entry.getValue();
                 if (views.containsKey(hologram.getId())) {
                     despawnHologramForPlayer(player, hologram.getId(), views);
+                }
+                Location pLoc = player.getLocation();
+                Location hLoc = hologram.getLocation();
+                boolean sameWorld = hLoc.getWorld() != null && hLoc.getWorld().equals(pLoc.getWorld());
+                boolean inRange = sameWorld && hLoc.distanceSquared(pLoc) <= (hologram.getRenderDistance() * hologram.getRenderDistance());
+                if (inRange) {
                     spawnHologramForPlayer(player, hologram, views);
                 }
             }

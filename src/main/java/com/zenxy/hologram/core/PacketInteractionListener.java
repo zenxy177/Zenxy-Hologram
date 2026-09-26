@@ -68,15 +68,33 @@ public class PacketInteractionListener extends PacketListenerAbstract {
     private void executeActions(Player player, HologramData hologram) {
         if (!player.isOnline()) return;
         for (String action : hologram.getClickActions()) {
-            if (action.startsWith("[console] ")) {
+            String lower = action.toLowerCase();
+            if (lower.startsWith("[console] ")) {
                 String cmd = sanitizeCommand(action.substring(10).replace("%player%", player.getName()));
+                if (cmd.startsWith("/")) cmd = cmd.substring(1);
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), cmd);
-            } else if (action.startsWith("[player] ")) {
+            } else if (lower.startsWith("[player] ")) {
                 String cmd = sanitizeCommand(action.substring(9).replace("%player%", player.getName()));
+                if (cmd.startsWith("/")) cmd = cmd.substring(1);
                 player.performCommand(cmd);
-            } else if (action.startsWith("[message] ")) {
+            } else if (lower.startsWith("[message] ")) {
                 String msg = action.substring(10).replace("%player%", player.getName());
                 player.sendMessage(com.zenxy.hologram.util.ColorUtil.parse(msg));
+            } else if (lower.startsWith("[sound] ")) {
+                String soundName = action.substring(8).trim().toUpperCase();
+                try {
+                    org.bukkit.Sound sound = org.bukkit.Sound.valueOf(soundName);
+                    player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
+                } catch (Exception ignored) {
+                }
+            } else if (lower.startsWith("[server] ")) {
+                String server = action.substring(9).trim();
+                player.performCommand("server " + server);
+            } else {
+                // Default fallback: if no prefix, execute as player command
+                String cmd = sanitizeCommand(action.replace("%player%", player.getName()));
+                if (cmd.startsWith("/")) cmd = cmd.substring(1);
+                player.performCommand(cmd);
             }
         }
     }
@@ -87,6 +105,6 @@ public class PacketInteractionListener extends PacketListenerAbstract {
 
     private String sanitizeCommand(String command) {
         if (command == null) return "";
-        return command.replaceAll("[;\\r\\n\\0|&]", "");
+        return command.replace("\r", "").replace("\n", "").replace("\0", "").trim();
     }
 }
