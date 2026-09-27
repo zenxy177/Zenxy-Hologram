@@ -71,13 +71,13 @@ Tüm komutlar için alias: `/zholo` · `/zh` · `/hologram`
 | `/zholo create <isim>` | Bulunduğunuz konumda yeni hologram oluşturur |
 | `/zholo delete <isim>` | Hologramı kalıcı olarak siler |
 | `/zholo list` | Tüm hologramları listeler |
+| `/zholo near [radyus]` | Yakındaki hologramları listeler (varsayılan: 15 blok) |
 | `/zholo tp <isim>` | Holograma ışınlanır |
 | `/zholo movehere <isim>` | Hologramı bulunduğunuz konuma taşır |
 | `/zholo addline <isim> <metin>` | Holograma yeni satır ekler |
 | `/zholo setline <isim> <index> <metin>` | Belirtilen satırı günceller |
 | `/zholo removeline <isim> <index>` | Belirtilen satırı siler |
 | `/zholo setscale <isim> <index> <boyut>` | Satır boyutunu ayarlar |
-| `/zholo setbg <isim> <index> <renk>` | Satır arka plan rengini ayarlar |
 | `/zholo setbillboard <isim> <mod>` | Billboard modunu değiştirir |
 | `/zholo addaction <isim> <eylem>` | Tıklama eylemi ekler |
 | `/zholo removeaction <isim> <index>` | Tıklama eylemini siler |
